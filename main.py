@@ -6,9 +6,13 @@ import tornado.web
 import tornado.ioloop
 import tornado.httpclient
 
-#tornado.httpclient.AsyncHTTPClient.configure(
-#        "tornado.curl_httpclient.CurlAsyncHTTPClient"
-#)
+import time
+import random
+from sogou import compute_sogou_tag
+
+tornado.httpclient.AsyncHTTPClient.configure(
+        "tornado.curl_httpclient.CurlAsyncHTTPClient"
+)
 
 #from pprint import pprint
 
@@ -33,7 +37,10 @@ class ProxyHandler(tornado.web.RequestHandler):
 
     def _get_real_domain(self, num_removed_roots=NUM_REMOVED_ROOTS):
         # e.g., httpbin.org.127.0.0.1.xip.io will return httpbin.org
-        d = self.request.host
+        d = self.request.host.split(':')[0]
+        if d.endswith('.127.0.0.1.xip.io'):
+            return d[:-17]
+
         l = d.split('.')
         assert len(l) > num_removed_roots
         return '.'.join(l[:(-num_removed_roots)])
@@ -70,16 +77,30 @@ class ProxyHandler(tornado.web.RequestHandler):
     def get(self, uri):
         real_domain = self._get_real_domain()
         real_url = 'http://' + real_domain + uri
+        timestamp = hex(int(time.time()))[2:]
+        sogou_tag = compute_sogou_tag(timestamp, real_domain)
 
-        self.write(real_domain + '\n' + real_url)
-        self.finish()
-        return
         #print real_domain
         #print real_url
+        #print timestamp
+        #print sogou_tag
 
         headers = self.request.headers
         if 'Host' in headers:
             headers['Host'] = real_domain
+        #headers = {(h, v) for h, v in headers.items()
+        #        if not h.startswith('X-')}
+        headers['X-Sogou-Auth'] = \
+                '9CD285F1E7ADB0BD403C22AD1D545F40/30/853edc6d49ba4e27'
+        headers['X-Sogou-Timestamp'] = timestamp
+        headers['X-Sogou-Tag'] = sogou_tag
+        headers['X-Forwarded-For'] = '114.114.114.114'
+
+        rand_num = random.randrange(16 + 16)
+        if rand_num < 16:
+            proxy_host = 'h' + str(rand_num) + '.dxt.bj.ie.sogou.com'
+        else:
+            proxy_host = 'h' + str(rand_num - 16) + '.edu.bj.ie.sogou.com'
 
         http_req = tornado.httpclient.HTTPRequest(
             url=real_url,
@@ -87,7 +108,9 @@ class ProxyHandler(tornado.web.RequestHandler):
             body=self.request.body,
             headers=headers,
             follow_redirects=False,
-            allow_nonstandard_methods=True
+            allow_nonstandard_methods=True,
+            proxy_host=proxy_host,
+            proxy_port=80,
         )
 
         http_client = tornado.httpclient.AsyncHTTPClient()
@@ -112,7 +135,5 @@ application = tornado.web.Application(
 )
 
 if __name__ == "__main__":
-    print 'Open your browser and try to access'
-    print 'http://httpbin.org.127.0.0.1.xip.io:8888'
     application.listen(8888)
     tornado.ioloop.IOLoop.instance().start()
