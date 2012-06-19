@@ -70,6 +70,10 @@ class ProxyHandler(tornado.web.RequestHandler):
     def get(self, uri):
         real_domain = self._get_real_domain()
         real_url = 'http://' + real_domain + uri
+
+        self.write(real_domain + '\n' + real_url)
+        self.finish()
+        return
         #print real_domain
         #print real_url
 
