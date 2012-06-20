@@ -9,7 +9,7 @@ import tornado.httpclient
 import time
 import random
 from sogou import compute_sogou_tag
-from hostname import validate_hostname
+#from hostname import validate_hostname
 
 tornado.httpclient.AsyncHTTPClient.configure(
         "tornado.curl_httpclient.CurlAsyncHTTPClient"
@@ -30,6 +30,29 @@ disallowed_response_headers = frozenset([
     # all above are hop-by-hop headers
     'content-encoding',  # may cause decoding errors
     'content-length',
+])
+
+allowed_request_headers = frozenset([
+    'accept',
+    'accept-charset',
+    'accept-encoding',
+    'accept-language',
+    'accept-datetime',
+    'authorization',
+    'cache-control',
+    'cookie',
+    'connection',
+    'content-type',
+    'host',
+    'if-match',
+    'if-modified-since',
+    'if-none-match',
+    'if-range',
+    'if-unmodified-since',
+    'pragma',
+    'range',
+    'referer',
+    'user-agent',
 ])
 
 
@@ -83,23 +106,21 @@ class ProxyHandler(tornado.web.RequestHandler):
 
         real_url = 'http://' + real_domain + uri
         timestamp = hex(int(time.time()))[2:]
-        sogou_tag = compute_sogou_tag(timestamp, real_domain)
 
-        #print real_domain
-        #print real_url
-        #print timestamp
-        #print sogou_tag
+        headers = {}
+        for h, v in self.request.headers.items():
+            if h.lower() in allowed_request_headers:
+                headers[h] = v
+        headers['Host'] = real_domain
 
-        headers = self.request.headers
-        if 'Host' in headers:
-            headers['Host'] = real_domain
-        #headers = {(h, v) for h, v in headers.items()
-        #        if not h.startswith('X-')}
         headers['X-Sogou-Auth'] = \
-                '9CD285F1E7ADB0BD403C22AD1D545F40/30/853edc6d49ba4e27'
+                hex(random.getrandbits(128))[2:-1].upper() + \
+                '/30/853edc6d49ba4e27'
         headers['X-Sogou-Timestamp'] = timestamp
-        headers['X-Sogou-Tag'] = sogou_tag
-        headers['X-Forwarded-For'] = '114.114.114.114'
+        headers['X-Sogou-Tag'] = compute_sogou_tag(timestamp, real_domain)
+
+        headers['X-Forwarded-For'] = '114.114.' + str(random.randrange(256)) \
+                + '.' + str(random.randrange(1, 256))
 
         rand_num = random.randrange(16 + 16)
         if rand_num < 16:
