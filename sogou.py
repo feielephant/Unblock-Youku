@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-
+#!/usr/bin/env pypy
 
 def compute_sogou_tag(timestamp, hostname):
     s = timestamp + hostname + 'SogouExplorerProxy'

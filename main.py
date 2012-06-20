@@ -9,6 +9,7 @@ import tornado.httpclient
 import time
 import random
 from sogou import compute_sogou_tag
+from hostname import validate_hostname
 
 tornado.httpclient.AsyncHTTPClient.configure(
         "tornado.curl_httpclient.CurlAsyncHTTPClient"
@@ -76,6 +77,10 @@ class ProxyHandler(tornado.web.RequestHandler):
     @tornado.web.asynchronous
     def get(self, uri):
         real_domain = self._get_real_domain()
+        #if not validate_hostname(real_domain):
+        #    self.send_error(403)  # forbidden
+        #    return
+
         real_url = 'http://' + real_domain + uri
         timestamp = hex(int(time.time()))[2:]
         sogou_tag = compute_sogou_tag(timestamp, real_domain)
