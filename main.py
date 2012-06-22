@@ -33,7 +33,7 @@ tornado.httpclient.AsyncHTTPClient.configure(
         "tornado.curl_httpclient.CurlAsyncHTTPClient"
 )
 
-#from pprint import pprint
+from pprint import pprint
 
 
 disallowed_response_headers = frozenset([
@@ -116,20 +116,25 @@ class ProxyHandler(tornado.web.RequestHandler):
         self.finish()
 
     @tornado.web.asynchronous
-    def get(self, uri):
+    def get(self):
         real_domain = self._get_real_domain()
-        if not validate_hostname(real_domain):
-            self.send_error(403)  # forbidden
-            return
+        #if not validate_hostname(real_domain):
+        #    self.send_error(403)  # forbidden
+        #    return
 
-        real_url = 'http://' + real_domain + uri
+        real_url = 'http://' + real_domain + self.request.uri
         timestamp = hex(int(time.time()))[2:]
+        # print '\n' + real_url
 
         headers = {}
         for h, v in self.request.headers.items():
             if h.lower() in allowed_request_headers:
+                # print h, v
                 headers[h] = v
         headers['Host'] = real_domain
+        # print 'Host', real_domain
+        # import sys
+        # sys.stdout.flush()
 
         headers['X-Sogou-Auth'] = \
                 hex(random.getrandbits(128))[2:-1].upper() + \
@@ -174,7 +179,7 @@ class ProxyHandler(tornado.web.RequestHandler):
 
 
 application = tornado.web.Application(
-        [(r'(.*)', ProxyHandler)],
+        [(r'.*', ProxyHandler)],
         debug=True  # please set to false in production environments
 )
 
