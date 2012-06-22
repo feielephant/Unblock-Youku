@@ -1,5 +1,23 @@
 #!/usr/bin/env python
 
+"""
+    Unblock Youku Server. A redirecting proxy server for Unblock-Youku
+    Copyright (C) 2012 Bo Zhu zhuzhu.org
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program. If not, see <http://www.gnu.org/licenses/>.
+"""
+
 NUM_REMOVED_ROOTS = 3
 
 import tornado.web
@@ -9,7 +27,7 @@ import tornado.httpclient
 import time
 import random
 from sogou import compute_sogou_tag
-#from hostname import validate_hostname
+from hostname import validate_hostname
 
 tornado.httpclient.AsyncHTTPClient.configure(
         "tornado.curl_httpclient.CurlAsyncHTTPClient"
@@ -100,9 +118,9 @@ class ProxyHandler(tornado.web.RequestHandler):
     @tornado.web.asynchronous
     def get(self, uri):
         real_domain = self._get_real_domain()
-        #if not validate_hostname(real_domain):
-        #    self.send_error(403)  # forbidden
-        #    return
+        if not validate_hostname(real_domain):
+            self.send_error(403)  # forbidden
+            return
 
         real_url = 'http://' + real_domain + uri
         timestamp = hex(int(time.time()))[2:]
