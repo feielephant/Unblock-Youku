@@ -1,6 +1,11 @@
 #!/usr/bin/env pypy
 
 """
+   This file is a rewriting of the javascript version at http://goo.gl/OVZsq.
+   The original techinque is learnt from xiaoxia (please check http://goo.gl/f5TTm).
+"""
+
+"""
     Unblock Youku Server. A redirecting proxy server for Unblock-Youku
     Copyright (C) 2012 Bo Zhu zhuzhu.org
 
