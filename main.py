@@ -118,9 +118,9 @@ class ProxyHandler(tornado.web.RequestHandler):
     @tornado.web.asynchronous
     def get(self):
         real_domain = self._get_real_domain()
-        #if not validate_hostname(real_domain):
-        #    self.send_error(403)  # forbidden
-        #    return
+        if not validate_hostname(real_domain):
+            self.send_error(403)  # forbidden
+            return
 
         real_url = 'http://' + real_domain + self.request.uri
         timestamp = hex(int(time.time()))[2:]

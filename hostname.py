@@ -31,6 +31,7 @@ _valid_hostnames = frozenset([
     'inner.kandian.com',
     'ipservice.163.com',
     'zb.s.qq.com',
+    'ip.kankan.xunlei.com',
 
     'v.youku.com',
     'v.iask.com',
