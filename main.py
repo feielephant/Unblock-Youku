@@ -2,7 +2,7 @@
 
 """
     Unblock Youku Server. A redirecting proxy server for Unblock-Youku
-    Copyright (C) 2012 Bo Zhu zhuzhu.org
+    Copyright (C) 2012 Bo Zhu http://zhuzhu.org
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as

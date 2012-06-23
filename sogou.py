@@ -2,12 +2,12 @@
 
 """
     This file is a rewriting of the javascript version at http://goo.gl/OVZsq.
-    The original techinque is learnt from xiaoxia (please check http://goo.gl/f5TTm).
+    The original techinque is learnt from xiaoxia (check http://goo.gl/f5TTm).
 """
 
 """
     Unblock Youku Server. A redirecting proxy server for Unblock-Youku
-    Copyright (C) 2012 Bo Zhu zhuzhu.org
+    Copyright (C) 2012 Bo Zhu http://zhuzhu.org
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as
