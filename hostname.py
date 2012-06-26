@@ -36,6 +36,8 @@ _valid_hostnames = frozenset([
     'v.youku.com',
     'v.iask.com',
 #    'http://*.gougou.com/*',
+
+    'zhuzhu.org',  # for debug
 ])
 
 

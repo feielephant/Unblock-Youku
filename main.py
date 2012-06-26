@@ -142,8 +142,11 @@ class ProxyHandler(tornado.web.RequestHandler):
         headers['X-Sogou-Timestamp'] = timestamp
         headers['X-Sogou-Tag'] = compute_sogou_tag(timestamp, real_domain)
 
-        headers['X-Forwarded-For'] = '114.114.' + str(random.randrange(256)) \
-                + '.' + str(random.randrange(1, 256))
+        #headers['X-Forwarded-For'] = '114.114.' + str(random.randrange(256)) \
+        #        + '.' + str(random.randrange(1, 255))
+        headers['X-Forwarded-For'] = '220.181.111.' \
+                + str(random.randrange(1, 255))
+        #print headers['X-Forwarded-For']
 
         rand_num = random.randrange(16 + 16)
         if rand_num < 16:
