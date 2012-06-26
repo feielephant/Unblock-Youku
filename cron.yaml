@@ -1,0 +1,4 @@
+cron:
+- description: daily autotest
+  url: /autotest
+  schedule: every day 23:00
