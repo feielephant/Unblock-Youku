@@ -186,8 +186,7 @@ class ProxyHandler(tornado.web.RequestHandler):
 
 
 application = tornado.web.Application(
-        [(r'.*', ProxyHandler)],
-        debug=True  # please set to false in production environments
+        [(r'.*', ProxyHandler)]
 )
 
 if __name__ == "__main__":
