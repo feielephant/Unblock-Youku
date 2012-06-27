@@ -84,7 +84,8 @@ class ProxyHandler(tornado.web.RequestHandler):
             return d[:-17]
 
         l = d.split('.')
-        assert len(l) > num_removed_roots
+        if len(l) <= num_removed_roots:
+            return None
         return '.'.join(l[:(-num_removed_roots)])
 
     def _handle_response(self, response):
@@ -118,6 +119,9 @@ class ProxyHandler(tornado.web.RequestHandler):
     @tornado.web.asynchronous
     def get(self):
         real_domain = self._get_real_domain()
+        if not real_domain:
+            self.send_error(403)
+            return
         if not validate_hostname(real_domain):
             self.send_error(403)  # forbidden
             return
