@@ -118,6 +118,12 @@ class ProxyHandler(tornado.web.RequestHandler):
 
     @tornado.web.asynchronous
     def get(self):
+        if self.request.uri == '/probe':
+            self.set_status(200)
+            self.write('OK')
+            self.finish()
+            return
+
         real_domain = self._get_real_domain()
         if not real_domain:
             self.send_error(403)
@@ -186,9 +192,17 @@ class ProxyHandler(tornado.web.RequestHandler):
 
 
 application = tornado.web.Application(
-        [(r'.*', ProxyHandler)]
+        [(r'.*', ProxyHandler)],
+        debug=True
 )
 
 if __name__ == "__main__":
-    application.listen(8888)
+    import sys
+    argv = sys.argv
+    if len(argv) < 2:
+        port = 8888
+    else:
+        port = int(argv[1])
+
+    application.listen(port)
     tornado.ioloop.IOLoop.instance().start()
