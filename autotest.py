@@ -83,7 +83,7 @@ test_suite = [
 
 def _convert_url(url):
     hostname = urlparse.urlparse(url).netloc
-    return url.replace(hostname, hostname + '.unblock-youku-api.zhuzhu.org', 1)
+    return url.replace(hostname, hostname + '.test.zhuzhu.org', 1)
 
 
 def test_one(test):
