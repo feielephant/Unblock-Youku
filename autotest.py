@@ -20,7 +20,6 @@
 """
 
 import urllib2
-import urlparse
 import logging
 
 
@@ -82,8 +81,7 @@ test_suite = [
 
 
 def _convert_url(url):
-    hostname = urlparse.urlparse(url).netloc
-    return url.replace(hostname, hostname + '.test.zhuzhu.org', 1)
+    return 'http://test.uku.im' + url[6:]
 
 
 def test_one(test):
