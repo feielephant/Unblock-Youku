@@ -78,10 +78,14 @@ class ProxyHandler(tornado.web.RequestHandler):
     SUPPORTED_METHODS = ['GET', 'POST']
 
     def _get_real_domain(self, num_removed_roots=NUM_REMOVED_ROOTS):
-        # e.g., httpbin.org.127.0.0.1.xip.io will return httpbin.org
         d = self.request.host.split(':')[0]
-        if d.endswith('.127.0.0.1.xip.io'):
-            return d[:-17]
+
+        # e.g., httpbin.org.127.0.0.1.xip.io will return httpbin.org
+        if d.endswith('127.0.0.1.xip.io'):
+            if len(d) >= 17:
+                return d[:-17]
+            else:
+                return None
 
         l = d.split('.')
         if len(l) <= num_removed_roots:
@@ -125,16 +129,17 @@ class ProxyHandler(tornado.web.RequestHandler):
             return
 
         real_domain = self._get_real_domain()
-        if not real_domain:
-            self.send_error(403)
-            return
+        if real_domain:
+            real_url = 'http://' + real_domain + self.request.uri
+        else:  # may be proxy-by-path
+            real_domain = self.request.uri.split('/')[1]
+            real_url = 'http:/' + self.request.uri
+
         if not validate_hostname(real_domain):
             self.send_error(403)  # forbidden
             return
 
-        real_url = 'http://' + real_domain + self.request.uri
         timestamp = hex(int(time.time()))[2:]
-        # print '\n' + real_url
 
         headers = {}
         for h, v in self.request.headers.items():
