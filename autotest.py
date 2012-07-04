@@ -19,9 +19,15 @@
     along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
-import urllib2
 import urlparse
 import logging
+
+try:
+    from google.appengine.api import urlfetch
+    is_GAE = True
+except:
+    import urllib2
+    is_GAE = False
 
 
 test_suite = [
@@ -87,8 +93,13 @@ def _convert_url(url):
 
 
 def test_one(test):
-    f = urllib2.urlopen(_convert_url(test['url']))
-    d = f.read()
+    if is_GAE:
+        result = urlfetch.fetch(_convert_url(test['url']), deadline=60)
+        d = result.content
+    else:
+        result = urllib2.urlopen(_convert_url(test['url']))
+        d = result.read()
+
     if 'bad' in test:
         if test['bad'] in d:
             return test['name'], 'failed, single bad target is enough!'
