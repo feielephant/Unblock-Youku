@@ -80,7 +80,7 @@ class ProxyHandler(tornado.web.RequestHandler):
     def _get_real_domain(self, num_removed_roots=NUM_REMOVED_ROOTS):
         d = self.request.host.split(':')[0]
 
-        if d.endswith('.uku.im'):
+        if d.endswith('.uku.im') and not d.endswith('.test.uku.im'):
             return d[:-7]
 
         # e.g., httpbin.org.127.0.0.1.xip.io will return httpbin.org
