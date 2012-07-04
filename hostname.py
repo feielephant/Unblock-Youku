@@ -26,6 +26,7 @@ _valid_hostnames = frozenset([
     'geo.js.kankan.xunlei.com',
     'v2.tudou.com',
     'web-play.pptv.com',
+    'web-play.pplive.cn',
     'dyn.ugc.pps.tv',
     's.plcloud.music.qq.com',
     'inner.kandian.com',
