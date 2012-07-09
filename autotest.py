@@ -89,7 +89,7 @@ test_suite = [
 
 def _convert_url(url):
     hostname = urlparse.urlparse(url).netloc
-    return url.replace(hostname, hostname + '.test.uku.im', 1)
+    return url.replace(hostname, hostname + '.uku.im', 1)
 
 
 def test_one(test):
