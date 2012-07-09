@@ -21,6 +21,7 @@
 
 import urlparse
 import logging
+import base64
 
 try:
     from google.appengine.api import urlfetch
@@ -88,8 +89,7 @@ test_suite = [
 
 
 def _convert_url(url):
-    hostname = urlparse.urlparse(url).netloc
-    return url.replace(hostname, hostname + '.uku.im', 1)
+    return 'http://yo.uku.im/?url=' + base64.b64encode(url)
 
 
 def test_one(test):
