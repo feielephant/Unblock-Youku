@@ -18,7 +18,14 @@
     along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
-NUM_REMOVED_ROOTS = 3
+
+# the base portions of domain names to be removed
+BASE_DOMAINS = (
+        'yo.uku.im',  # longer domain must be processed first
+        'uku.im',
+        '127.0.0.1.xip.io',
+)
+
 
 import tornado.web
 import tornado.ioloop
@@ -26,6 +33,9 @@ import tornado.httpclient
 
 import time
 import random
+import base64
+import urlparse
+
 from sogou import compute_sogou_tag
 from hostname import validate_hostname
 
@@ -33,8 +43,11 @@ tornado.httpclient.AsyncHTTPClient.configure(
         "tornado.curl_httpclient.CurlAsyncHTTPClient"
 )
 
-#from pprint import pprint
 
+CROSSDOMAIN_XML = """<?xml version="1.0" encoding="UTF-8"?>
+<cross-domain-policy>
+    <allow-access-from domain="*"/>
+</cross-domain-policy>"""
 
 disallowed_response_headers = frozenset([
     'connection',
@@ -77,27 +90,26 @@ allowed_request_headers = frozenset([
 class ProxyHandler(tornado.web.RequestHandler):
     SUPPORTED_METHODS = ['GET', 'POST']
 
-    def _get_real_domain(self, num_removed_roots=NUM_REMOVED_ROOTS):
-        d = self.request.host.split(':')[0]
+    def _get_real_things(self):
+        domain = self.request.host.split(':')[0]
+        for base_domain in BASE_DOMAINS:
+            if domain.endswith(base_domain):
+                if len(domain) > len(base_domain):
+                    real_domain = domain[:-(len(base_domain) + 1)]
+                    real_url = 'http://' + real_domain + self.request.uri
+                else:
+                    real_url = self.get_argument('url')
+                    if not real_url.startswith('http://'):
+                        real_url = base64.b64decode(real_url)
+                    real_domain = urlparse.urlparse(real_url).netloc
 
-        if d.endswith('.uku.im') and not d.endswith('.test.uku.im'):
-            return d[:-7]
+                return real_domain, real_url
 
-        # e.g., httpbin.org.127.0.0.1.xip.io will return httpbin.org
-        if d.endswith('127.0.0.1.xip.io'):
-            return d[:-17]
-
-        l = d.split('.')
-        if len(l) <= num_removed_roots:
-            return None
-        return '.'.join(l[:(-num_removed_roots)])
+        # should not reach here
+        return None, None
 
     def _handle_response(self, response):
         self.set_status(response.code)
-
-        #print
-        #print self.request.uri
-        #pprint(response.headers)
 
         # check the last comment of http://goo.gl/4w5yj
         for h in response.headers.keys():
@@ -107,47 +119,44 @@ class ProxyHandler(tornado.web.RequestHandler):
                 # using only add_header will cause some problems
                 # e.g. _clear_headers_for_304 doesn't work for _list_headers
                 if len(list_values) == 1:
-                    #print h, list_values[0]
                     self.set_header(h, list_values[0])
                 else:
                     for v in list_values:
-                        #print h, v
                         self.add_header(h, v)
 
         if response.body:
             self.write(response.body)
 
-        #self.flush()
         self.finish()
 
     @tornado.web.asynchronous
     def get(self):
-        if self.request.uri == '/probe':
+        if self.request.uri == '/favicon.ico':
+            self.send_error(404)
+            return
+
+        elif self.request.uri == '/crossdomain.xml':
             self.set_status(200)
-            self.write('OK')
+            self.set_header('Content-Type', 'text/xml')
+            self.write(CROSSDOMAIN_XML)
             self.finish()
             return
 
-        real_domain = self._get_real_domain()
-        if not real_domain:
+        real_domain, real_url = self._get_real_things()
+        if not real_domain or not real_url:
             self.send_error(403)
             return
         if not validate_hostname(real_domain):
             self.send_error(403)
             return
 
-        real_url = 'http://' + real_domain + self.request.uri
         timestamp = hex(int(time.time()))[2:]
 
         headers = {}
         for h, v in self.request.headers.items():
             if h.lower() in allowed_request_headers:
-                # print h, v
                 headers[h] = v
         headers['Host'] = real_domain
-        # print 'Host', real_domain
-        # import sys
-        # sys.stdout.flush()
 
         headers['X-Sogou-Auth'] = \
                 hex(random.getrandbits(128))[2:-1].upper() + \
@@ -159,7 +168,6 @@ class ProxyHandler(tornado.web.RequestHandler):
         #        + '.' + str(random.randrange(1, 255))
         headers['X-Forwarded-For'] = '220.181.111.' \
                 + str(random.randrange(1, 255))
-        #print headers['X-Forwarded-For']
 
         rand_num = random.randrange(16 + 16)
         if rand_num < 16:
