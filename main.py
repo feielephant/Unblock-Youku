@@ -30,6 +30,7 @@ BASE_DOMAINS = (
 import tornado.web
 import tornado.ioloop
 import tornado.httpclient
+import tornado.httpserver
 
 import time
 import random
@@ -204,16 +205,9 @@ class ProxyHandler(tornado.web.RequestHandler):
 
 application = tornado.web.Application(
         [(r'.*', ProxyHandler)],
-        debug=True
 )
 
-if __name__ == "__main__":
-    import sys
-    argv = sys.argv
-    if len(argv) < 2:
-        port = 8888
-    else:
-        port = int(argv[1])
-
-    application.listen(port)
-    tornado.ioloop.IOLoop.instance().start()
+http_server = tornado.httpserver.HTTPServer(application)
+http_server.bind(8888)
+http_server.start(0)  # Forks multiple sub-processes
+tornado.ioloop.IOLoop.instance().start()
