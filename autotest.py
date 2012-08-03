@@ -84,6 +84,11 @@ test_suite = [
         'url': 'http://v.iask.com/v_play.php?vid=79978948&uid=6&pid=0&tid=0&plid=4004&prid=ja_7_1372464632&isAuto=1&referrer=&ran=0.5966448043473065&r=p.you.video.sina.com.cn',
         'bad': 'error',
         'good': 'timelength',
+    }, {
+        'name': 'cntv',
+        'url': 'http://vdn.apps.cntv.cn/api/getHttpVideoInfo.do?pid=04730ed1d5d748d88e8e7f5ce23baa2c&tz=4&from=000smallWindow&url=http://player.cntv.cn/flashplayer/players/htmls/smallwindow.html?pid=04730ed1d5d748d88e8e7f5ce23baa2c&time=0&idl=32&idlr=32&modifyed=false',
+        'bad': '"is_invalid_copyright":"0"',
+        'good': '"is_invalid_copyright":"1"'
     }
 ]
 
