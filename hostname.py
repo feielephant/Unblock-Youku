@@ -40,6 +40,8 @@ _valid_hostnames = frozenset([
     'kandian.com',
     'cdn.kandian.com',
 
+    'music.sina.com.cn',
+
     'vdn.apps.cntv.cn',
 #    'http://*.gougou.com/*',
 
