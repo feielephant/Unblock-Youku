@@ -89,6 +89,12 @@ test_suite = [
         'url': 'http://vdn.apps.cntv.cn/api/getHttpVideoInfo.do?pid=04730ed1d5d748d88e8e7f5ce23baa2c&tz=4&from=000smallWindow&url=http://player.cntv.cn/flashplayer/players/htmls/smallwindow.html?pid=04730ed1d5d748d88e8e7f5ce23baa2c&time=0&idl=32&idlr=32&modifyed=false',
         'bad': '"is_invalid_copyright":"1"',
         'good': '"is_invalid_copyright":"0"'
+    }, {
+        'name': 'music.sina',
+        'url': 'http://music.sina.com.cn/yueku/intro/musina_mpw_playlist.php',
+        'data': 'id%5B%5D=2824982',
+        'bad': 'oid=261710',
+        'good': 'oid=2824982'
     }
 ]
 
@@ -99,10 +105,19 @@ def _convert_url(url):
 
 def test_one(test):
     if is_GAE:
-        result = urlfetch.fetch(_convert_url(test['url']), deadline=60)
+        if 'data' in test:
+            result = urlfetch.fetch(_convert_url(test['url']),
+                    payload=test['data'], deadline=60)
+        else:
+            result = urlfetch.fetch(_convert_url(test['url']), deadline=60)
         d = result.content
     else:
-        result = urllib2.urlopen(_convert_url(test['url']))
+        if 'data' in test:
+            result = urllib2.urlopen(_convert_url(test['url']),
+                    data=test['data'])
+        else:
+            result = urllib2.urlopen(_convert_url(test['url']))
+
         d = result.read()
 
     if 'bad' in test:
