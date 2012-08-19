@@ -107,7 +107,7 @@ def test_one(test):
     if is_GAE:
         if 'data' in test:
             result = urlfetch.fetch(_convert_url(test['url']),
-                    payload=test['data'], deadline=60)
+                    method='POST', payload=test['data'], deadline=60)
         else:
             result = urlfetch.fetch(_convert_url(test['url']), deadline=60)
         d = result.content
