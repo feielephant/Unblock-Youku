@@ -19,7 +19,8 @@
     along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
-import urlparse
+
+#import urlparse
 import logging
 import base64
 
@@ -100,7 +101,7 @@ test_suite = [
 
 
 def _convert_url(url):
-    return 'http://yo.uku.im/?url=' + base64.b64encode(url)
+    return 'http://yo.uku.im/proxy.php?url=' + base64.b64encode(url)
 
 
 def test_one(test):
