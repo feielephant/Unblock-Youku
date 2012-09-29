@@ -44,7 +44,7 @@ test_suite = [
         'good': 'st',
     }, {
         'name': 'pptv',
-        'url': 'http://web-play.pptv.com/webplay3-110-15381505.xml&ft=0&zone=0&vvid=&type=web&rnd=0.36283910693600774',
+        'url': 'http://web-play.pptv.com/webplay3-0-15720689.xml&ft=-100&zone=-4&pid=12501&version=2&vvid=8becb057-fdee-7174-b1bf-144b42490a3b&type=web.fpp&o=-1&rnd=0.8490666206926107',
         'bad': 'error',
         'good': 'channel',
     }, {
