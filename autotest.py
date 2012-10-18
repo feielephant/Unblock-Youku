@@ -101,7 +101,8 @@ test_suite = [
 
 
 def _convert_url(url):
-    return 'http://www.xn--youk-38a.com/proxy.php?url=' + base64.b64encode(url)
+    return 'http://www.xn--yuk-6na13b.com/proxy.php?url=' \
+            + base64.b64encode(url)
 
 
 def test_one(test):
